@@ -23,7 +23,7 @@ class MerchController extends Controller
 
     public function show(Merch $merch): MerchResource
     {
-        return new MerchResource($merch->loadMissing(['merch_colors', 'merch_sizes']));
+        return new MerchResource($merch->loadMissing(['merchColor', 'merchSize']));
     }
 
     public function update(Request $request, Merch $merch): MerchResource

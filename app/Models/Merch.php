@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Merch extends Model
@@ -17,23 +18,23 @@ class Merch extends Model
         'order',
     ];
 
-    public function merch_sizes()
+    public function merchSize(): HasMany
     {
         return $this->hasMany(MerchSize::class)->orderBy('order');
     }
 
-    public function merch_colors()
+    public function merchColor(): HasMany
     {
         return $this->hasMany(MerchColor::class)->orderBy('order');
     }
 
     public function getImageSrcAttribute()
     {
-        return $this->merch_colors()->first()->image_src;
+        return $this->merchColor()->first()?->image_src ?? '';
     }
 
     public function getImageAltAttribute()
     {
-        return $this->merch_colors()->first()->image_alt;
+        return $this->merchColor()->first()?->image_alt ?? '';
     }
 }

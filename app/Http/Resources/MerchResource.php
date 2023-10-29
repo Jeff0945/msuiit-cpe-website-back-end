@@ -16,8 +16,8 @@ class MerchResource extends JsonResource
             'price' => $this->price,
             'imageSrc' => $this->image_src,
             'imageAlt' => $this->image_alt,
-            'colors' => new MerchColorCollection($this->whenLoaded('merch_colors')),
-            'sizes' => new MerchSizeCollection($this->whenLoaded('merch_sizes')),
+            'colors' => new MerchColorCollection($this->whenLoaded('merchColor')),
+            'sizes' => new MerchSizeCollection($this->whenLoaded('merchSize')),
         ];
     }
 }
