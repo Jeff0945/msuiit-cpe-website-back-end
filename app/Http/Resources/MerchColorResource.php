@@ -15,7 +15,7 @@ class MerchColorResource extends JsonResource
             'imageSrc' => $this->image_src,
             'imageAlt' => $this->image_alt,
             'color' => $this->color,
-            'selected_color' => $this->selected_color,
+            'selectedColor' => $this->selected_color,
         ];
     }
 }

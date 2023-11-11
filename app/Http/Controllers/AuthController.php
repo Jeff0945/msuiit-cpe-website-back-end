@@ -7,7 +7,7 @@ use App\Http\Requests\SignUpRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -17,19 +17,15 @@ class AuthController extends Controller
      */
     public function signIn(SignInRequest $request): JsonResponse
     {
-        $attempt = Auth::attempt($request->all());
+        $user = User::where('email', $request['email'])->first();
 
-        if ($attempt) {
-            $user = Auth::user();
-
-            if ($user) {
-                return $this->responseData($user);
-            }
-
-            return $this->unauthenticated();
+        if ($user && Hash::check($request['password'], $user->password)) {
+            return $this->authenticated($user);
         }
 
-        return $this->unauthenticated();
+        return \response()->json([
+            'error' => 'Unauthenticated.'
+        ], Response::HTTP_UNAUTHORIZED);
     }
 
     /**
@@ -38,43 +34,23 @@ class AuthController extends Controller
      */
     public function signUp(SignUpRequest $request): JsonResponse
     {
+        $request['password'] = Hash::make($request['password']);
+
         $user = User::create($request->all());
-        $attempt = Auth::attempt($user->toArray());
 
-        if ($attempt) {
-            $user = Auth::user();
-
-            if ($user) {
-                return $this->responseData($user);
-            }
-
-            return $this->unauthenticated();
-        }
-
-        return response()->json([
-            'error' => 'Account creation failed.'
-        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        return $this->authenticated($user, Response::HTTP_CREATED);
     }
 
     /**
      * @param User $user
+     * @param int $response
      * @return JsonResponse
      */
-    private function responseData(User $user): JsonResponse
+    private function authenticated(User $user, int $response = Response::HTTP_OK): JsonResponse
     {
         return response()->json([
-            'fullName' => $user->full_name ?? '',
+            'user' => $user,
             'token' => $user->createToken('auth')->plainTextToken,
-        ]);
-    }
-
-    /**
-     * @return JsonResponse
-     */
-    private function unauthenticated(): JsonResponse
-    {
-        return \response()->json([
-            'error' => 'Unauthenticated.'
-        ], Response::HTTP_UNAUTHORIZED);
+        ], $response);
     }
 }
